@@ -1,10 +1,13 @@
-import { Hono } from "hono";
+import { Hono } from 'hono';
 
-export const noteNewRoute = new Hono();
+export const noteNewRoute = new Hono<{
+	Bindings: {
+		NOTES: KVNamespace;
+	}
+}>();
 
 noteNewRoute.get("/notes/new", (c) => {
-	return c.html(
-		/* html */`
+	return c.html(/* html */`
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +17,7 @@ noteNewRoute.get("/notes/new", (c) => {
 </head>
 <body>
 	<h1>Note - New</h1>
-	<form action="/404" method="POST">
+	<form action="/notes/new" method="POST">
 		<div>
 			<label>
 				Title:
@@ -36,4 +39,21 @@ noteNewRoute.get("/notes/new", (c) => {
 </html>
 		`.trim()
 	);
+});
+
+noteNewRoute.post("/notes/new", async (c) => {
+	const body = await c.req.parseBody();
+	const title = body.title;
+	const content = body.content;
+
+	if (!title || !content) {
+		return c.text('Invalid input', 400);
+	}
+
+	const noteId = crypto.randomUUID();
+	const noteData = { title, content };
+
+	await c.env.NOTES.put(noteId, JSON.stringify(noteData));
+
+	return c.text(`Note created with ID: ${noteId}`);
 });
