@@ -2,9 +2,11 @@ import { Hono } from 'hono';
 import { notFoundHandler } from './pages/errors/404';
 import { errorHandler } from './pages/errors/error';
 import { notesRoute } from './pages/notes';
+import { homeRoute } from './pages/home';
 
 const app = new Hono();
 
+app.route("/", homeRoute);
 app.route("/", notesRoute);
 app.notFound(notFoundHandler);
 app.onError(errorHandler);

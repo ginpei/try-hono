@@ -1,7 +1,8 @@
 import { Hono } from "hono";
+import { noteListRoute } from "./list";
+import { noteNewRoute } from "./new";
 
 export const notesRoute = new Hono();
 
-notesRoute.get("/notes", (c) => {
-	return c.text("This is the /notes route");
-});
+notesRoute.route("/", noteListRoute);
+notesRoute.route("/", noteNewRoute);
