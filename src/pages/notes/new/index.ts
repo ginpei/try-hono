@@ -55,5 +55,5 @@ noteNewRoute.post("/notes/new", async (c) => {
 
 	await c.env.NOTES.put(noteId, JSON.stringify(noteData));
 
-	return c.text(`Note created with ID: ${noteId}`);
+	return c.redirect(`/notes/${noteId}`);
 });

@@ -26,6 +26,9 @@ noteViewRoute.get("/notes/:note_id", async (c) => {
 	<title>Note - ${note.title}</title>
 </head>
 <body>
+	<p>
+		<a href="/notes">Notes</a>
+	</p>
 	<h1>${note.title}</h1>
 	<pre>${note.content}</pre>
 </body>
