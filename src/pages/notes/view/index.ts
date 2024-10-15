@@ -2,7 +2,7 @@ import { Context, Hono } from "hono";
 
 type Env = {
 	Bindings: {
-		NOTES: KVNamespace;
+		DB: D1Database;
 	};
 };
 
@@ -30,6 +30,9 @@ noteViewRoute.get("/notes/:note_id", async (c) => {
 		<a href="/notes">Notes</a>
 	</p>
 	<h1>${note.title}</h1>
+	<p>
+		<small>Created at ${new Date(note.created_at).toLocaleString()}</small>
+	</p>
 	<pre>${note.content}</pre>
 </body>
 </html>
@@ -41,8 +44,15 @@ noteViewRoute.get("/notes/:note_id", async (c) => {
 async function getNoteById(
 	c: Context<Env>,
 	noteId: string,
-): Promise<{ id: string; title: string; content: string; } | null> {
-	const noteJson = await c.env.NOTES.get(noteId);
-	const note = noteJson ? JSON.parse(noteJson) : null;
+): Promise<{ id: string; title: string; content: string; created_at: string } | null> {
+	const query = /* sql */ `
+		SELECT id, title, content, created_at FROM notes
+		WHERE id = ?
+	`;
+
+	const note = await c.env.DB
+		.prepare(query)
+		.bind(noteId)
+		.first<{ id: string; title: string; content: string; created_at: string }>();
 	return note;
 }

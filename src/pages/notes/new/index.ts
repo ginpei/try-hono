@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 
 export const noteNewRoute = new Hono<{
 	Bindings: {
-		NOTES: KVNamespace;
+		DB: D1Database;
 	}
 }>();
 
@@ -51,9 +51,14 @@ noteNewRoute.post("/notes/new", async (c) => {
 	}
 
 	const noteId = crypto.randomUUID();
-	const noteData = { title, content };
+	const query = /* sql */ `
+		INSERT INTO notes (id, title, content)
+		VALUES (?, ?, ?)
+	`;
 
-	await c.env.NOTES.put(noteId, JSON.stringify(noteData));
+	await c.env.DB.prepare(query)
+		.bind(noteId, title, content)
+		.run();
 
 	return c.redirect(`/notes/${noteId}`);
 });

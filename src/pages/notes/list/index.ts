@@ -2,7 +2,7 @@ import { Context, Hono } from "hono";
 
 type Env = {
 	Bindings: {
-		NOTES: KVNamespace;
+		DB: D1Database;
 	};
 };
 
@@ -40,17 +40,14 @@ noteListRoute.get("/notes", async (c) => {
 
 // TODO extract
 async function getNotes(c: Context<Env>): Promise<{ id: string; title: string; }[]> {
-	const keys = await c.env.NOTES.list();
-	const notes: { id: string; title: string }[] = [];
-
-	// 各キーに対してノートのデータを取得
-	for (const key of keys.keys) {
-		const note = await c.env.NOTES.get(key.name);
-		if (note) {
-			const noteData = JSON.parse(note);
-			notes.push({ id: key.name, title: noteData.title });
-		}
+	const query = /* sql */ `
+		SELECT id, title, created_at FROM notes
+		ORDER BY created_at DESC
+	`;
+	const result = await c.env.DB.prepare(query).all<{ id: string; title: string; }>();
+	if (!result.success) {
+		throw new Error('Failed to get notes');
 	}
-
+	const notes = result.results;
 	return notes;
 }

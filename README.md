@@ -13,3 +13,8 @@ $ npm run dev
 ```console
 $ npm run deploy
 ```
+
+```console
+$ npx wrangler d1 migrations create try-hono <migration title> --remote
+$ npx wrangler d1 migrations apply try-hono
+```

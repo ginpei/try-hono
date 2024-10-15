@@ -1,0 +1,7 @@
+-- Migration number: 0001 	 2024-10-15T06:37:25.807Z
+CREATE TABLE notes (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
